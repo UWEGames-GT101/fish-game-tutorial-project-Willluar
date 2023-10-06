@@ -4,7 +4,14 @@ from gamedata import GameData
 
 
 def isInside(sprite, mouse_x, mouse_y) -> bool:
-    pass
+    # grab the sprite's bounding box
+    bounds = sprite.getWorldBounds()
+
+    # check mouse position is in the sprite box
+    if bounds.v1.x < mouse_x < bounds.v2.x and bounds.v1.y < mouse_y <bounds.v3.y:
+        return True
+
+    return False
 
 
 class MyASGEGame(pyasge.ASGEGame):
@@ -71,7 +78,10 @@ class MyASGEGame(pyasge.ASGEGame):
         return False
 
     def initScoreboard(self) -> None:
-        pass
+        self.scoreboard = pyasge.Text(self.data.fonts["MainFont"])
+        self.scoreboard.x = 1300
+        self.scoreboard.y = 75
+        self.scoreboard.string = str(self.data.score).zfill(6)
 
     def initMenu(self) -> bool:
         self.data.fonts["MainFont"] = self.data.renderer.loadFont("/data/fonts/KGHAPPY.ttf", 64)
@@ -95,7 +105,14 @@ class MyASGEGame(pyasge.ASGEGame):
         return True
 
     def clickHandler(self, event: pyasge.ClickEvent) -> None:
-        pass
+        # look to see if mouse is clicked
+        if event.action == pyasge.MOUSE.BUTTON_PRESSED and \
+            event.button == pyasge.MOUSE.MOUSE_BTN1:
+
+            if isInside(self.fish, event.x, event.y):
+                self.data.score += 1
+                self.scoreboard.string = str(self.data.score).zfill(6)
+                self.spawn()
 
     def keyHandler(self, event: pyasge.KeyEvent) -> None:
 
@@ -156,6 +173,7 @@ class MyASGEGame(pyasge.ASGEGame):
         else:
             # render the game here
             self.data.renderer.render(self.data.background)
+            self.data.renderer.render(self.scoreboard)
             self.data.renderer.render(self.fish)
 
 
